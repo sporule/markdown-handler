@@ -1,0 +1,24 @@
+{
+  "name": "markdown-handler",
+  "version": "1.0.0",
+  "description": "handles the markdown files",
+  "author": "Hao Luo",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hao-Luo/markdowns"
+  },
+  "scripts": {
+    "build": "npx webpack --config webpack.config.js --mode production"
+  },
+  "files": [
+    "dist/index.js"
+  ],
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-loader": "^8.0.6",
+    "webpack": "^4.38.0",
+    "webpack-cli": "^3.3.6"
+  }
+}
