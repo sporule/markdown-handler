@@ -7,4 +7,4 @@
 
 > Mini utility to help you load your markdown files as posts.
 
-Examples to added later
+Examples to be added later
