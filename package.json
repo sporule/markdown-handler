@@ -1,6 +1,6 @@
 {
   "name": "markdown-handler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Markdown Handler - Mini utility to help you load your markdown files as posts",
   "author": "Sporule.com",
   "license": "MIT",
