@@ -1,6 +1,6 @@
 {
   "name": "markdown-handler",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Markdown Handler - Mini utility to help you load your markdown files as posts",
   "author": "Sporule.com",
   "keywords": [
@@ -14,7 +14,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Hao-Luo/markdown-handler"
+    "url": "https://github.com/sporule/markdown-handler"
   },
   "scripts": {
     "build": "npx webpack --config webpack.config.js",
