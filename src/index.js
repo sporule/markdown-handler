@@ -22,12 +22,14 @@ const loadMds = (paths, page) => {
     paths.slice((page - 1) * itemsPerPage, (page) * itemsPerPage).forEach((path) => {
         mds.push(
             fetch(path).then(response => response.text()).then(md => {
-                let title = MarkdownHandler.titleParser(md);
+                let title = MarkdownHandler.titleParser(path);
                 let link = MarkdownHandler.linkParser(MarkdownHandler.route, path);
                 let date = MarkdownHandler.dateParser(path).toISOString().slice(0, 10);;
                 let excerpt = MarkdownHandler.excerptParser(md, MarkdownHandler.excerptLength);
+                let tags = MarkdownHandler.tagsParser(path);
+                let category = MarkdownHandler.categoryParser(path);
                 let thumbnail = MarkdownHandler.thumbnailParser(md);
-                return { "title": title, "content": md, "date": date, "excerpt": excerpt + " ......", thumbnail: thumbnail, "link": link };
+                return { "title": title, "content": md, "date": date, "excerpt": excerpt + " ......", thumbnail: thumbnail, "link": link, "tags": tags, "category": category };
             }));
     });
     return Promise.all(mds).then(mds => {
@@ -37,7 +39,8 @@ const loadMds = (paths, page) => {
             "page": page,
             "itemsPerPage": itemsPerPage,
             "hasPrevPage": page > 1,
-            "hasNextPage": page < pages
+            "hasNextPage": page < pages,
+            "invalidPage": page > pages
         };
     });
 }
@@ -46,16 +49,24 @@ const loadMds = (paths, page) => {
 //default configs
 
 let dateParser = (path) => {
-    return new Date(path.match(/[\w\d\-\_\+\$]+\.md/)[0].split(".")[0].split("_")[1]);
+    return new Date(path.match(/\d{4}-\d{2}-\d{2}/)[0].trim());
 }
 
-let titleParser = (md) => {
-    let titles = md.match(/^\#\#\s.*\s/) || ["No Title"];
-    return titles[0].replace("## ", "").trim();
+let titleParser = (path) => {
+    //path is in format of title_yyyy-mm-dd
+    return path.split("/").slice(-1)[0].split("_")[0].replace(/-/g, " ").trim();
+}
+
+let categoryParser = (path) => {
+    return path.match(/(?<=@).*(?=\.md)/)[0].trim();
+}
+
+let tagsParser = (path) => {
+    return path.match(/(?<=\_)[^_]*(?=@)/)[0].split(",");
 }
 
 let linkParser = (route, path) => {
-    return route + path.match(/[\w\d\-\_\+\$]+\.md/)[0].split(".")[0];
+    return route + path.match(/\/[^\/]*(?=\.md)/)[0].trim();
 }
 
 let excerptParser = (md, length) => {
@@ -73,8 +84,8 @@ let thumbnailParser = (md) => {
 
 
 let isDateDesc = true;
-let route="/posts/";
-let excerptLength =30;
+let route = "/posts";
+let excerptLength = 30;
 let itemsPerPage = 8;
 
 let MarkdownHandler = {
@@ -82,9 +93,11 @@ let MarkdownHandler = {
     dateParser,
     titleParser,
     linkParser,
+    categoryParser,
+    tagsParser,
     excerptParser,
-    excerptLength,
     thumbnailParser,
+    excerptLength,
     isDateDesc,
     route,
     itemsPerPage,
