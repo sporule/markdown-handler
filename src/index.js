@@ -15,6 +15,13 @@ const loadMds = (paths, page) => {
         return MarkdownHandler.isDateDesc ? dateB - dateA : dateA - dateB;
     })
 
+    const categories = paths.map(path => MarkdownHandler.categoryParser(path));
+    const tags = Array.from(
+        new Set(
+            paths.map(path => MarkdownHandler.tagsParser(path)).flat()
+        )
+    );
+
     itemsPerPage = page > 0 ? MarkdownHandler.itemsPerPage : 99999999;
     let pages = Math.ceil(paths.length / itemsPerPage);
     let mds = [];
@@ -37,6 +44,8 @@ const loadMds = (paths, page) => {
             "items": mds,
             "pages": pages,
             "page": page,
+            "tags": tags,
+            "categories": categories,
             "itemsPerPage": itemsPerPage,
             "hasPrevPage": page > 1,
             "hasNextPage": page < pages,
