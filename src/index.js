@@ -1,4 +1,4 @@
-'use strict';
+import Fuse from "fuse.js"
 
 class MarkdownHandler {
 
@@ -71,6 +71,22 @@ class MarkdownHandler {
     }
 
 
+    getSearchIndex = (paths) => {
+        let titleDoc = [];
+        paths.forEach((path) => {
+            titleDoc.push(
+                {
+                    "title": this.titleParser(path),
+                    "link": this.linkParser(this.route, path)
+                }
+            )
+        })
+        var searchIndex = new Fuse(titleDoc, {
+            keys: ["title"]
+        })
+        return searchIndex;
+    }
+
     loadMds = (paths, page) => {
         //item in future date will not be included, useful for draft functionality
         paths = paths.filter((path) => {
@@ -98,7 +114,9 @@ class MarkdownHandler {
         let itemsPerPage = page > 0 ? this.itemsPerPage : 99999999;
         let pages = Math.ceil(paths.length / itemsPerPage);
         let mds = [];
-        //load the md files
+
+
+        //load the md files for the current page
         paths.slice((page - 1) * itemsPerPage, (page) * itemsPerPage).forEach((path) => {
             mds.push(
                 fetch(path).then(response => response.text()).then(md => {

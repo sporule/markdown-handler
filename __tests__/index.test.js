@@ -97,7 +97,16 @@ describe("MardownHandler Test: index.js",()=>{
         expect(actual).toEqual(expected);
         
     });
+
     
+    test("markdownHandler.getSearchIndex(): It should return the link to the article with selected title", () => {
+        const paths = ["https://www.sporule.com/posts/this-is-test-link_2019-07-09_happy,fun@fun.md","https://www.sporule.com/posts/happy-every-day_2019-07-09_Study,fun@study.md"];
+        const expected = {"link":"/posts/this-is-test-link_2019-07-09_happy,fun@fun","title":"this is test link"};
+        const actual = markdownHandler.getSearchIndex(paths).search("test")[0];
+        expect(actual).toEqual(expected);
+        
+    });
+
     describe("markdownHandler.loadMds()", ()=>{
         const mdContent = `## This is a test, this is the first title
             Some random words in the middle.
