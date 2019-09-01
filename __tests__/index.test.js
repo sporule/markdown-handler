@@ -28,7 +28,7 @@ describe("MardownHandler Test: index.js", () => {
     });
 
     test("markdownHandler.categoryParser(): Category should be extracted from path", () => {
-        const path = "https://www.sporule.com/posts/this-is-test-link_2019-07-09@fun.md";
+        const path = "https://www.sporule.com/posts/@this-is-test-link_2019-07-09@fun.md";
         const expected = "fun";
         const actual = markdownHandler.categoryParser(path);
         expect(actual).toBe(expected);

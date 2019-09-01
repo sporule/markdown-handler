@@ -16,7 +16,7 @@ class MarkdownHandler {
 
 
     //default parsing functions
-    
+
     dateParser = (path) => {
         return new Date(path.match(/\d{4}-\d{2}-\d{2}/)[0].trim());
     }
@@ -31,7 +31,7 @@ class MarkdownHandler {
     }
 
     categoryParser = (path) => {
-        return path.match(/(?<=@).*(?=\.md)/)[0].trim();
+        return path.match(/(?<=@)[^\,\_]*?(?=\.md)/)[0].trim();
     }
 
     tagsParser = (path) => {
