@@ -22,7 +22,7 @@ describe("MardownHandler Test: index.js", () => {
     test("markdownHandler.linkParser(): Link should be extracted from path", () => {
         const path = "https://www.sporule.com/posts/this-is-test-link_2019-07-09@fun.md";
         const route = "/posts/";
-        const expected = route + "/this-is-test-link_2019-07-09@fun";
+        const expected = route + "this-is-test-link";
         const actual = markdownHandler.linkParser(route, path);
         expect(actual).toBe(expected);
     });
@@ -109,7 +109,7 @@ describe("MardownHandler Test: index.js", () => {
 
     test("markdownHandler.getSearchIndex(): It should return the link to the article with selected title", () => {
         const paths = ["https://www.sporule.com/posts/this-is-test-link_2019-07-09_happy,fun@fun.md", "https://www.sporule.com/posts/happy-every-day_2019-07-09_Study,fun@study.md"];
-        const expected = { "link": "/posts/this-is-test-link_2019-07-09_happy,fun@fun", "title": "this is test link" };
+        const expected = { "link": "/posts/this-is-test-link", "title": "this is test link" };
         const actual = markdownHandler.getSearchIndex(paths).search("test")[0];
         expect(actual).toEqual(expected);
 
@@ -131,7 +131,7 @@ describe("MardownHandler Test: index.js", () => {
         const paths = ["https://www.sporule.com/hello_1987-12-05_happy,fun@abc.md", "https://www.sporule.com/hello_1987-12-05_happy,fun@abc.md", "https://www.sporule.com/hello_1987-12-05_happy,fun@abc.md"];
 
         test("Data should be extracted from path", () => {
-            const actual = { "title": "hello", "pinned": false, "content": mdContent, "tags": ["happy", "fun"], "category": "abc", "date": "1987-12-05", "excerpt": "Some random words in the middle. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, ......", thumbnail: "https://testa.com", "link": "/posts/hello_1987-12-05_happy,fun@abc" }
+            const actual = { "title": "hello", "pinned": false, "content": mdContent, "tags": ["happy", "fun"], "category": "abc", "date": "1987-12-05", "excerpt": "Some random words in the middle. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, ......", thumbnail: "https://testa.com", "link": "/posts/hello" }
             return markdownHandler.loadMds(paths, 1).then(mds => {
                 const expected = mds.items[0]
                 expect(actual).toEqual(expected);

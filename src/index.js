@@ -5,7 +5,7 @@ class MarkdownHandler {
 
     //default options
     isDateDesc = true;
-    route = "/posts";
+    route = "/posts/";
     excerptLength = 30;
     itemsPerPage = 8;
     filterCategories = [];
@@ -16,12 +16,12 @@ class MarkdownHandler {
 
 
     //default parsing functions
+    
     dateParser = (path) => {
         return new Date(path.match(/\d{4}-\d{2}-\d{2}/)[0].trim());
     }
 
     titleParser = (path) => {
-        //path is in format of title_yyyy-mm-dd
         return path.split("/").slice(-1)[0].split("_")[0].replace(/-/g, " ").replace("@", "").trim();
     }
 
@@ -39,7 +39,8 @@ class MarkdownHandler {
     }
 
     linkParser = (route, path) => {
-        return route + path.match(/\/[^\/]*(?=\.md)/)[0].trim();
+        let title = this.titleParser(path);
+        return route + title.trim().toLocaleLowerCase().split(" ").join("-");
     }
 
     excerptParser = (md, length) => {
@@ -102,7 +103,6 @@ class MarkdownHandler {
     }
 
     loadMds = (paths = [], page = 1) => {
-
         //item in future date will not be included, useful for draft functionality
         paths = paths.filter((path) => {
             let date = this.dateParser(path);
@@ -129,6 +129,12 @@ class MarkdownHandler {
         const tags = [];
         paths.forEach(path => tags.push(...this.tagsParser(path)));
 
+        //linksTable is to locate the md path by using the link
+        let linksTable = {};
+        paths.forEach((path) => {
+            let link = this.linkParser(this.route, path);
+            linksTable[link] = path;
+        })
 
         let itemsPerPage = page > 0 ? this.itemsPerPage : 99999999;
         let pages = Math.ceil(paths.length / itemsPerPage);
@@ -159,6 +165,7 @@ class MarkdownHandler {
                 "page": page,
                 "tags": tags,
                 "categories": categories,
+                "linksTable": linksTable,
                 "itemsPerPage": itemsPerPage,
                 "hasPrevPage": page > 1,
                 "hasNextPage": page < pages,
