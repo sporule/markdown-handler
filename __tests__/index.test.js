@@ -68,7 +68,7 @@ describe("MardownHandler Test: index.js", () => {
     });
 
 
-    test("markdownHandler.thumbnailParser(): Thumbnail should be the first image extracted from md content", () => {
+    test("markdownHandler.thumbnailParser(): Thumbnail should be extracted from thumbnail keyword", () => {
         const md = `## This is a test, this is the first title
         Some random words in the middle.
         ![sporule](https://testa.com)
@@ -79,8 +79,9 @@ describe("MardownHandler Test: index.js", () => {
         ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
         fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
         mollit anim id est laborum.
+        [https://image.ext|thumbnail]
         `;
-        const expected = "https://testa.com";
+        const expected = "https://image.ext";
         const actual = markdownHandler.thumbnailParser(md);
         expect(actual).toBe(expected);
     });
@@ -130,7 +131,7 @@ describe("MardownHandler Test: index.js", () => {
         const paths = ["https://www.sporule.com/hello_1987-12-05_happy,fun@abc.md", "https://www.sporule.com/hello_1987-12-05_happy,fun@abc.md", "https://www.sporule.com/hello_1987-12-05_happy,fun@abc.md"];
 
         test("Data should be extracted from path", () => {
-            const actual = { "title": "hello", "pinned":false ,"content": mdContent, "tags": ["happy", "fun"], "category": "abc", "date": "1987-12-05", "excerpt": "Some random words in the middle. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, ......", thumbnail: "https://testa.com", "link": "/posts/hello_1987-12-05_happy,fun@abc" }
+            const actual = { "title": "hello", "pinned": false, "content": mdContent, "tags": ["happy", "fun"], "category": "abc", "date": "1987-12-05", "excerpt": "Some random words in the middle. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, ......", thumbnail: "https://testa.com", "link": "/posts/hello_1987-12-05_happy,fun@abc" }
             return markdownHandler.loadMds(paths, 1).then(mds => {
                 const expected = mds.items[0]
                 expect(actual).toEqual(expected);

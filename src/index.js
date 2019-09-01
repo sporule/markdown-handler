@@ -11,6 +11,9 @@ class MarkdownHandler {
     filterCategories = [];
     filterTags = [];
     isPinnedOnly = false;
+    //with thumbnail keyword in format  [https://image.ext|thumbnail]
+    thumbnailRegex = /\[.+?\|thumbnail\]/g;
+
 
     //default parsing functions
     dateParser = (path) => {
@@ -48,6 +51,11 @@ class MarkdownHandler {
     }
 
     thumbnailParser = (md) => {
+        if (md.match(this.thumbnailRegex)) {
+            //match thumbnail keyword
+            return md.match(this.thumbnailRegex)[0].split("|")[0].replace("\[", "");
+        }
+        //match first image
         let images = md.match(/\!\[.*\]\(http.*\)\s/) || ["https://i.imgur.com/N9jdI0r.png"];
         return (images[0].match(/http.*(?=\))/) || ["https://i.imgur.com/N9jdI0r.png"])[0];
     }
@@ -131,6 +139,8 @@ class MarkdownHandler {
         paths.slice((page - 1) * itemsPerPage, (page) * itemsPerPage).forEach((path) => {
             mds.push(
                 fetch(path).then(response => response.text()).then(md => {
+                    //remove thumbnail image
+                    md = md.replace(this.thumbnailRegex, "");
                     let title = this.titleParser(path);
                     let link = this.linkParser(this.route, path);
                     let date = this.dateParser(path).toISOString().slice(0, 10);;
@@ -138,7 +148,7 @@ class MarkdownHandler {
                     let tags = this.tagsParser(path);
                     let category = this.categoryParser(path);
                     let thumbnail = this.thumbnailParser(md);
-                    return { "title": title, "content": md, "date": date, "excerpt": excerpt + " ......", thumbnail: thumbnail, "link": link, "tags": tags, "category": category, "pinned":this.isPinnedOnly };
+                    return { "title": title, "content": md, "date": date, "excerpt": excerpt + " ......", thumbnail: thumbnail, "link": link, "tags": tags, "category": category, "pinned": this.isPinnedOnly };
                 }));
         });
 
