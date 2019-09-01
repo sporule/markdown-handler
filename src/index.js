@@ -10,6 +10,7 @@ class MarkdownHandler {
     itemsPerPage = 8;
     filterCategories = [];
     filterTags = [];
+    isPinnedOnly = false;
 
     //default parsing functions
     dateParser = (path) => {
@@ -18,7 +19,12 @@ class MarkdownHandler {
 
     titleParser = (path) => {
         //path is in format of title_yyyy-mm-dd
-        return path.split("/").slice(-1)[0].split("_")[0].replace(/-/g, " ").trim();
+        return path.split("/").slice(-1)[0].split("_")[0].replace(/-/g, " ").replace("@", "").trim();
+    }
+
+    pinnedParser = (path) => {
+        //checked if it is pinned
+        return path.split("/").slice(-1)[0].split("_")[0][0] == "@";
     }
 
     categoryParser = (path) => {
@@ -87,10 +93,15 @@ class MarkdownHandler {
         return searchIndex;
     }
 
-    loadMds = (paths, page) => {
+    loadMds = (paths = [], page = 1) => {
+
         //item in future date will not be included, useful for draft functionality
         paths = paths.filter((path) => {
             let date = this.dateParser(path);
+            if (this.isPinnedOnly) {
+                return date <= new Date() && this.pinnedParser(path);
+            }
+            //return all including the pinned ones
             return date <= new Date();
         })
 
@@ -127,9 +138,10 @@ class MarkdownHandler {
                     let tags = this.tagsParser(path);
                     let category = this.categoryParser(path);
                     let thumbnail = this.thumbnailParser(md);
-                    return { "title": title, "content": md, "date": date, "excerpt": excerpt + " ......", thumbnail: thumbnail, "link": link, "tags": tags, "category": category };
+                    return { "title": title, "content": md, "date": date, "excerpt": excerpt + " ......", thumbnail: thumbnail, "link": link, "tags": tags, "category": category, "pinned":this.isPinnedOnly };
                 }));
         });
+
         return Promise.all(mds).then(mds => {
             return {
                 "items": mds,
