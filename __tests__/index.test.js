@@ -127,7 +127,7 @@ describe("MardownHandler Test: index.js", () => {
             mollit anim id est laborum.
             `
         fetch.mockResponseOnce(mdContent);
-        const paths = ["https://www.sporule.com/hello_1987-12-05_happy,fun@abc.md", "https://www.sporule.com/hello_1987-12-05_happy,fun@abc.md", "https://www.sporule.com/hello_1987-12-05_happy,fun@abc.md"];
+        const paths = ["https://www.sporule.com/hello_1987-12-05@abc.md", "https://www.sporule.com/hello_1987-12-05_happy,fun@abc.md", "https://www.sporule.com/hello_1987-12-05_happy,fun@abc.md"];
 
         test("Data should be extracted from path", () => {
             const actual = { "title": "hello", "pinned": false, "content": mdContent, "tags": ["happy", "fun"], "category": "abc", "date": "1987-12-05", "excerpt": "Some random words in the middle. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, ......", thumbnail: "https://testa.com", "link": "/posts/hello_1987-12-05_happy,fun@abc" }
