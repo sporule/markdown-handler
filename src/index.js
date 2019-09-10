@@ -4,45 +4,10 @@ class MarkdownHandler {
 
 
     //default options
-    isDateDesc = true;
-    route = "/posts/";
     excerptLength = 30;
-    itemsPerPage = 8;
-    filterCategories = [];
-    filterTags = [];
-    isPinnedOnly = false;
-    //with thumbnail keyword in format  [https://image.ext|thumbnail]
-    thumbnailRegex = /\[.+?\|thumbnail\]/g;
-
-
-    //default parsing functions
-
-    dateParser = (path) => {
-        return new Date(path.match(/\d{4}-\d{2}-\d{2}/)[0].trim());
-    }
-
-    titleParser = (path) => {
-        return path.split("/").slice(-1)[0].split("_")[0].replace(/-/g, " ").replace("@", "").trim();
-    }
-
-    pinnedParser = (path) => {
-        //checked if it is pinned
-        return path.split("/").slice(-1)[0].split("_")[0][0] == "@";
-    }
-
-    categoryParser = (path) => {
-        return path.match(/(?<=@)[^\,\_]*?(?=\.md)/)[0].trim();
-    }
-
-    tagsParser = (path) => {
-        return path.match(/(?<=\_)[^_]*(?=@)/)[0].split(",");
-    }
-
-    linkParser = (route, path) => {
-        let title = this.titleParser(path);
-        return route + title.trim().toLocaleLowerCase().split(" ").join("-");
-    }
-
+    defaultThumbnail = "https://i.ibb.co/MPcgSHQ/logo.png";
+    test = "123";
+    mustHaveMetas = ["title", "categories", "tags", "date"]
     excerptParser = (md, length) => {
         return md.replace(/(\#{1,}\s.*)|(\!\[.*?\])|(\[)|(\])|(\([http\/].*?\))|(\*?)|(\<.*?\>.*?\<\/.*?\>)|(\-)|(\|)(\r)|(\n)|(\<img src=.*?\>)/g, "").
             split(' ').
@@ -52,47 +17,22 @@ class MarkdownHandler {
     }
 
     thumbnailParser = (md) => {
-        if (md.match(this.thumbnailRegex)) {
-            //match thumbnail keyword
-            return md.match(this.thumbnailRegex)[0].split("|")[0].replace("\[", "");
-        }
-        //match first image
+        //match first image in the markdown file, otherwise will use default image
         let images = md.match(/\!\[.*\]\(http.*\)\s/) || [""];
-        return (images[0].match(/http.*(?=\))/) || [""])[0];
+        let image = (images[0].match(/http.*(?=\))/) || [""])[0];
+        return image.length > 5 ? image : this.defaultThumbnail;
     }
 
-    categoryFilter = (paths) => {
-        if (this.filterCategories.length > 0) {
-            return paths.filter((path) => {
-                return this.filterCategories.indexOf(this.categoryParser(path)) >= 0;
-            })
-        }
-        return paths;
-    }
-
-    tagFilter = (paths) => {
-        if (this.filterTags.length > 0) {
-            return paths.filter((path) => {
-                let flag = false;
-                this.tagsParser(path).forEach(tag => {
-                    if (this.filterTags.indexOf(tag) >= 0) {
-                        flag = true;
-                    }
-                })
-                return flag;
-            })
-        }
-        return paths;
-    }
-
-
-    getSearchIndex = (paths) => {
+    getSearchIndex = (mds) => {
         let titleDoc = [];
-        paths.forEach((path) => {
+        mds.forEach((md) => {
             titleDoc.push(
                 {
-                    "title": this.titleParser(path),
-                    "link": this.linkParser(this.route, path)
+                    "title": md.metas.title,
+                    "categories": md.metas.categories,
+                    "tags": md.metas.tags,
+                    "date": md.metas.date,
+                    "excerpt": md.excerpt
                 }
             )
         })
@@ -102,83 +42,56 @@ class MarkdownHandler {
         return searchIndex;
     }
 
-    loadMds = (paths = [], page = 1) => {
-        //item in future date will not be included, useful for draft functionality
-        paths = paths.filter((path) => {
-            let date = this.dateParser(path);
-            if (this.isPinnedOnly) {
-                return date <= new Date() && this.pinnedParser(path);
-            }
-            //return all including the pinned ones
-            return date <= new Date();
-        })
 
-        //sort by date
-        paths.sort((a, b) => {
-            let dateA = this.dateParser(a);
-            let dateB = this.dateParser(b);
-            return this.isDateDesc ? dateB - dateA : dateA - dateB;
-        })
-
-        //fitler by category
-        paths = this.categoryFilter(paths);
-        //fitler by tag
-        paths = this.tagFilter(paths);
-
-        const categories = paths.map(path => this.categoryParser(path));
-        const tags = [];
-        paths.forEach(path => tags.push(...this.tagsParser(path)));
-
-        //linksTable is to locate the md path by using the link
-        let linksTable = {};
-        paths.forEach((path) => {
-            let link = this.linkParser(this.route, path);
-            linksTable[link] = path;
-        })
-
-        let itemsPerPage = page > 0 ? this.itemsPerPage : 99999999;
-        let pages = Math.ceil(paths.length / itemsPerPage);
+    loadMds = (paths = []) => {
         let mds = [];
-
-
-        //load the md files for the current page
-        paths.slice((page - 1) * itemsPerPage, (page) * itemsPerPage).forEach((path) => {
+        paths.forEach((path) => {
             mds.push(
                 fetch(path).then(response => response.text()).then(md => {
-                    let thumbnail = this.thumbnailParser(md);
-                    //remove thumbnail image
-                    md = md.replace(this.thumbnailRegex, "");
-                    let title = this.titleParser(path);
-                    let link = this.linkParser(this.route, path);
-                    let date = this.dateParser(path).toISOString().slice(0, 10);;
-                    let excerpt = this.excerptParser(md, this.excerptLength);
-                    let tags = this.tagsParser(path);
-                    let category = this.categoryParser(path);
-                    return { "title": title, "content": md, "date": date, "excerpt": excerpt + " ......", thumbnail: thumbnail, "link": link, "tags": tags, "category": category, "pinned": this.isPinnedOnly };
-                }));
+                    if (md.split("---").length >= 3) {
+                        //check if the md has the meta data
+                        const excerpt = this.excerptParser(md, this.excerptLength);
+                        let metas = {};
+                        let metaStrs = md.split("---")[1];
+                        metaStrs.split("\n").forEach((metaStr) => {
+                            let metaArray = metaStr.split("\n")[0].split(":");
+                            if (metaArray.length == 2) {
+                                let metaName = metaArray[0].trim().toLowerCase();
+                                let metaValue = metaArray[1].toLowerCase().trim();
+                                if (metaName == "categories" || metaName == "tags") {
+                                    metaValue = metaValue.split(",").map(o => o.trim());
+                                }
+                                metas[metaName] = metaValue;
+                            }
+                        });
+                        if (!metas["thumbnail"]) {
+                            //add default thumbnail
+                            metas["thumbnail"] = this.thumbnailParser(md);
+                        }
+                        let returnFlag = true;
+                        this.mustHaveMetas.forEach(meta => {
+                            //all must have metas are required
+                            if (metas[meta] == null) {
+                                returnFlag = false;
+                            }
+                        })
+                        if (returnFlag) {
+                            return { "metas": metas, "content": md.split("---").slice(2, 99999).join("---"), "excerpt": excerpt + " ......", "path": path };
+                        }
+                    }
+                })
+            );
         });
-
         return Promise.all(mds).then(mds => {
+            mds = mds.filter((md) => md); //remove undefined
+            const searchIndex = this.getSearchIndex(mds);
             return {
                 "items": mds,
-                "pages": pages,
-                "page": page,
-                "tags": tags,
-                "categories": categories,
-                "linksTable": linksTable,
-                "itemsPerPage": itemsPerPage,
-                "hasPrevPage": page > 1,
-                "hasNextPage": page < pages,
-                "invalidPage": page > pages
+                "searchIndex": searchIndex
             };
         });
     }
-
-
-
 }
-
-
 
 export default MarkdownHandler;
 
