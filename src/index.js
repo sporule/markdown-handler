@@ -5,21 +5,25 @@ class MarkdownHandler {
 
     //default options
     excerptLength = 30;
-    defaultThumbnail = "https://i.ibb.co/MPcgSHQ/logo.png";
+    defaultThumbnail = "https://i.imgur.com/GzmpA4s.png";
     test = "123";
     mustHaveMetas = ["title", "categories", "tags", "date"]
+
     excerptParser = (md, length) => {
-        return md.replace(/(\#{1,}\s.*)|(\!\[.*?\])|(\[)|(\])|(\([http\/].*?\))|(\*?)|(\<.*?\>.*?\<\/.*?\>)|(\-)|(\|)(\r)|(\n)|(\<img src=.*?\>)/g, "").
+        return md.replace(/(\#{1,}\s.*)|(\!\[.*?\])|(\[)|(\])|(\(.*?\.(jpg|png|gif|bmp|jpeg).*?\))|(\*?)|(\<.*?\>.*?\<\/.*?\>)|(\-)|(\|)(\r)|(\n)|(\<img src=.*?\>)/g, "").
             split(' ').
             map(str => str.trim()).
             filter(str => str != "").
-            slice(0, length).join(" ").trim();
+            slice(0, length).join(" ").slice(0, length * 10);
     }
 
     thumbnailParser = (md) => {
         //match first image in the markdown file, otherwise will use default image
-        let images = md.match(/\!\[.*\]\(http.*\)\s/) || [""];
-        let image = (images[0].match(/http.*(?=\))/) || [""])[0];
+        let images = md.match(/\!\[.*\]\(.*?\.(jpg|png|gif|bmp|jpeg).*?\)/) || [""];
+        let image = (images[0].match(/(?<=\().*(?=\))/) || [""])[0];
+        if (!image.includes("http")) {
+            image = "/" + image;
+        }
         return image.length > 5 ? image : this.defaultThumbnail;
     }
 
@@ -27,13 +31,7 @@ class MarkdownHandler {
         let titleDoc = [];
         mds.forEach((md) => {
             titleDoc.push(
-                {
-                    "title": md.metas.title,
-                    "categories": md.metas.categories,
-                    "tags": md.metas.tags,
-                    "date": md.metas.date,
-                    "excerpt": md.excerpt
-                }
+                md
             )
         })
         var searchIndex = new Fuse(titleDoc, {
@@ -49,15 +47,14 @@ class MarkdownHandler {
             mds.push(
                 fetch(path).then(response => response.text()).then(md => {
                     if (md.split("---").length >= 3) {
-                        //check if the md has the meta data
-                        const excerpt = this.excerptParser(md, this.excerptLength);
+                        //if the md has the meta data
                         let metas = {};
                         let metaStrs = md.split("---")[1];
                         metaStrs.split("\n").forEach((metaStr) => {
                             let metaArray = metaStr.split("\n")[0].split(":");
                             if (metaArray.length == 2) {
                                 let metaName = metaArray[0].trim().toLowerCase();
-                                let metaValue = metaArray[1].toLowerCase().trim();
+                                let metaValue = metaArray[1].toLowerCase().trim().replace(/"/g, "");
                                 if (metaName == "categories" || metaName == "tags") {
                                     metaValue = metaValue.split(",").map(o => o.trim());
                                 }
@@ -75,8 +72,10 @@ class MarkdownHandler {
                                 returnFlag = false;
                             }
                         })
+                        const content = md.split("---").slice(2, 99999).join("---");
+                        const excerpt = this.excerptParser(content, this.excerptLength);
                         if (returnFlag) {
-                            return { "metas": metas, "content": md.split("---").slice(2, 99999).join("---"), "excerpt": excerpt + " ......", "path": path };
+                            return { "title": metas.title, "metas": metas, "content": content, "excerpt": excerpt + " ......", "path": path };
                         }
                     }
                 })
