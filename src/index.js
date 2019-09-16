@@ -66,9 +66,12 @@ class MarkdownHandler {
                                 metas[metaName] = metaValue;
                             }
                         });
-                        if (!metas["thumbnail"]) {
+                        if (!metas["coverImage"]) {
                             //add default thumbnail
-                            metas["thumbnail"] = this.thumbnailParser(md);
+                            metas["coverImage"] = this.thumbnailParser(md);
+                        }
+                        else {
+                            metas["coverImage"] = "/" + metas["coverImage"];
                         }
                         let returnFlag = true;
                         this.mustHaveMetas.forEach(meta => {
