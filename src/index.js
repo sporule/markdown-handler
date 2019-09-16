@@ -27,6 +27,11 @@ class MarkdownHandler {
         return image.length > 5 ? image : this.defaultThumbnail;
     }
 
+    markdownLocalImageFixer = (content) => {
+        //add / in front of the local images
+        return content.replace(/images(?=\/.*\))/g, "/images");
+    }
+
     getSearchIndex = (mds) => {
         let titleDoc = [];
         mds.forEach((md) => {
@@ -72,7 +77,8 @@ class MarkdownHandler {
                                 returnFlag = false;
                             }
                         })
-                        const content = md.split("---").slice(2, 99999).join("---");
+                        let content = md.split("---").slice(2, 99999).join("---");
+                        content = this.markdownLocalImageFixer(content);
                         const excerpt = this.excerptParser(content, this.excerptLength);
                         if (returnFlag) {
                             return { "title": metas.title, "metas": metas, "content": content, "excerpt": excerpt + " ......", "path": path };
