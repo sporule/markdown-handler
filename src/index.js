@@ -60,8 +60,11 @@ class MarkdownHandler {
                             if (metaArray.length == 2) {
                                 let metaName = metaArray[0].trim().toLowerCase();
                                 let metaValue = metaArray[1].trim().replace(/"/g, "");
+                                if (metaName != "coverimage") {
+                                    metaValue = metaValue.toLowerCase();
+                                }
                                 if (metaName == "categories" || metaName == "tags") {
-                                    metaValue = metaValue.toLowerCase().split(",").map(o => o.trim());
+                                    metaValue = metaValue.split(",").map(o => o.trim());
                                 }
                                 metas[metaName] = metaValue;
                             }
