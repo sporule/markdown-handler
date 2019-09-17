@@ -56,10 +56,10 @@ class MarkdownHandler {
                         let metas = {};
                         let metaStrs = md.split("---")[1];
                         metaStrs.split("\n").forEach((metaStr) => {
-                            let metaArray = metaStr.split("\n")[0].split(":");
-                            if (metaArray.length == 2) {
+                            let metaArray = metaStr.split("\n")[0].split(":"); 
+                            if (metaArray.length >= 2) {
                                 let metaName = metaArray[0].trim().toLowerCase();
-                                let metaValue = metaArray[1].trim().replace(/"/g, "");
+                                let metaValue = metaArray.slice(1,99999).join(":").trim().replace(/"/g, "");
                                 if (metaName != "coverimage") {
                                     metaValue = metaValue.toLowerCase();
                                 }
@@ -73,7 +73,7 @@ class MarkdownHandler {
                             //add default thumbnail
                             metas["coverimage"] = this.thumbnailParser(md);
                         }
-                        else if(metas["coverimage"].slice(0, 4) == "http") {
+                        else if(metas["coverimage"].slice(0, 4) != "http") {
                             metas["coverimage"] = "/" + metas["coverimage"];
                         }
                         let returnFlag = true;
