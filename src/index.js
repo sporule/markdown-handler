@@ -73,7 +73,7 @@ class MarkdownHandler {
                             //add default thumbnail
                             metas["coverimage"] = this.thumbnailParser(md);
                         }
-                        else {
+                        else if(metas["coverimage"].slice(0, 4) == "http") {
                             metas["coverimage"] = "/" + metas["coverimage"];
                         }
                         let returnFlag = true;
