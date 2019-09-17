@@ -10,7 +10,7 @@ class MarkdownHandler {
     mustHaveMetas = ["title", "categories", "tags", "date"]
 
     excerptParser = (md, length) => {
-        return md.replace(/(\#{1,}\s.*)|(\!\[.*?\])|(\[)|(\])|(\(.*?\.(jpg|png|gif|bmp|jpeg).*?\))|(\*?)|(\<.*?\>.*?\<\/.*?\>)|(\-)|(\|)(\r)|(\n)|(\<img src=.*?\>)/g, "").
+        return md.replace(/(\#{1,}\s.*)|(\!\[.*?\])|(\[)|(\])|(\([http\/].*?\))|(\(.*?\.(jpg|png|gif|bmp|jpeg).*?\))|(\*?)|(\<.*?\>.*?\<\/.*?\>)|(\-)|(\|)(\r)|(\n)|(\<img src=.*?\>)/g, "").
             split(' ').
             map(str => str.trim()).
             filter(str => str != "").

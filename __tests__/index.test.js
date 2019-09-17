@@ -24,12 +24,12 @@ describe("MardownHandler Test: index.js", () => {
     });
 
 
-    test("markdownHandler.thumbnailParser(): Thumbnail should be the first image in the post", () => {
+    test("markdownHandler.thumbnailParser(): coverimage should be the first image in the post", () => {
         let markdownHandler = new MarkdownHandler();
         const md = `
         ---
         title:This is a test, this is the first title
-        thumbnail:abc.jpg
+        coverimage:abc.jpg
         tags:a,b,c,d
         categories:fun,food 
         date:2019-08-08
@@ -52,16 +52,16 @@ describe("MardownHandler Test: index.js", () => {
     test("markdownHandler.getSearchIndex(): It should return the link to the article with selected title", () => {
         let markdownHandler = new MarkdownHandler();
         const mds = [{
+            "title": "test abc",
             "metas": {
-                "title": "test abc",
                 "category": "abc",
                 "tags": "abc",
                 "date": "1920-03-02",
             }, "content": "abcdefg", "excerpt": "abcdefg" + " ......", "path": "abc.md"
         },
         {
+            "title": "bbc",
             "metas": {
-                "title": "bbc",
                 "category": "abc",
                 "tags": "abc",
                 "date": "1920-03-02",
@@ -82,7 +82,7 @@ describe("MardownHandler Test: index.js", () => {
             const md = `
             ---
             title:This is a test, this is the first title
-            thumbnail:abc.jpg
+            coverimage:abc.jpg
             tags:a,b,c,d
             categories:fun,food
             date:
@@ -121,7 +121,7 @@ describe("MardownHandler Test: index.js", () => {
             const md = `
             ---
             title:This is a test, this is the first title
-            thumbnail:abc.jpg
+            coverimage:abc.jpg
             tags:a,b,c,d
             categories:fun,food
             date:
@@ -145,8 +145,8 @@ describe("MardownHandler Test: index.js", () => {
             });
         });
 
-        describe("Thumbnail should be extracted from the markdown or used default thumbnail", () => {
-            test("Thumbnail should be extracted from the markdown file as it is in the markdown file ", () => {
+        describe("coverimage should be extracted from the markdown or used default coverimage", () => {
+            test("coverimage should be extracted from the markdown file as it is in the markdown file ", () => {
                 const md = `
                 ---
                 title:This is a test, this is the first title
@@ -167,13 +167,13 @@ describe("MardownHandler Test: index.js", () => {
                 fetch.mockResponse(md);
                 let markdownHandler = new MarkdownHandler();
                 return markdownHandler.loadMds(paths).then(result => {
-                    const actual = result.items[0].metas["thumbnail"];
+                    const actual = result.items[0].metas["coverimage"];
                     const expected = "https://testa.com/abc.jpg";
                     expect(actual).toEqual(expected);
                 });
             });
 
-            test("Thumbnail should be the default thumbnail as markdown file does not contain any image ", () => {
+            test("coverimage should be the default coverimage as markdown file does not contain any image ", () => {
                 const md = `
                 ---
                 title:This is a test, this is the first title
@@ -192,7 +192,7 @@ describe("MardownHandler Test: index.js", () => {
                 fetch.mockResponse(md);
                 let markdownHandler = new MarkdownHandler();
                 return markdownHandler.loadMds(paths).then(result => {
-                    const actual = result.items[0].metas["thumbnail"];
+                    const actual = result.items[0].metas["coverimage"];
                     const expected = markdownHandler.defaultThumbnail;
                     expect(actual).toEqual(expected);
                 });
