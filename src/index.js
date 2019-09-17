@@ -59,9 +59,9 @@ class MarkdownHandler {
                             let metaArray = metaStr.split("\n")[0].split(":");
                             if (metaArray.length == 2) {
                                 let metaName = metaArray[0].trim().toLowerCase();
-                                let metaValue = metaArray[1].toLowerCase().trim().replace(/"/g, "");
+                                let metaValue = metaArray[1].trim().replace(/"/g, "");
                                 if (metaName == "categories" || metaName == "tags") {
-                                    metaValue = metaValue.split(",").map(o => o.trim());
+                                    metaValue = metaValue.toLowerCase().split(",").map(o => o.trim());
                                 }
                                 metas[metaName] = metaValue;
                             }
