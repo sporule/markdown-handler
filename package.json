@@ -1,6 +1,6 @@
 {
   "name": "markdown-handler",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "description": "Markdown Handler - Mini utility to help you load your markdown files on the fly",
   "author": "Sporule.com",
   "keywords": [

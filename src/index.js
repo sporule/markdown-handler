@@ -20,7 +20,7 @@ class MarkdownHandler {
     thumbnailParser = (md) => {
         //match first image in the markdown file, otherwise will use default image
         let images = md.match(/\!\[.*\]\(.*?\.(jpg|png|gif|bmp|jpeg).*?\)/) || [""];
-        let image = (images[0].match(/(?<=\().*(?=\))/) || [""])[0];
+        let image = (images[0].match(/\]\(.*(?=\))/) || [""])[0].replace(/\]|\(/g,"");
         if (!image.includes("http")) {
             image = "/" + image;
         }
