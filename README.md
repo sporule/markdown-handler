@@ -10,7 +10,6 @@
 ## Features
 
 - Reads markdown contents by using the paths without pre-build.
-- Provide simple search functionality through title
 - Provides some basic meta data such as tags, categories, date, coverimage but it is flexible to configure.
 
 ## Installation
@@ -36,8 +35,6 @@ var paths = [
 
 mdHandler.loadMds(paths).then(posts => {
           console.log(posts);
-          //To Search from markdowns
-          posts.search("title to search");
 });
 
 
@@ -95,7 +92,7 @@ posts:
 | mustHaveMetas     | `["title", "categories", "tags", "date"]`                         | string array | This are the must have metas at the beginning of the markdown file                     |
 | excerptParser     | take the set length from the markdown file                        | function     | Input is the markdown file and the length of the excerpt, output is the excerpt string |
 | thumbnailParser   | take the first image from markdown file as thumbnail              | function     | Input is the markdown file, output is the thumbnail string                             |
-| getSearchFunction | This is to build the search function, current search key is title | function     | Input is the post processed markdown items, output is a search function                |
+
 
 ## Meta Data
 
