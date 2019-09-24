@@ -49,31 +49,6 @@ describe("MardownHandler Test: index.js", () => {
         expect(actual).toBe(expected);
     });
 
-    test("markdownHandler.getSearchIndex(): It should return the link to the article with selected title", () => {
-        let markdownHandler = new MarkdownHandler();
-        const mds = [{
-            "title": "test abc",
-            "metas": {
-                "category": "abc",
-                "tags": "abc",
-                "date": "1920-03-02",
-            }, "content": "abcdefg", "excerpt": "abcdefg" + " ......", "path": "abc.md"
-        },
-        {
-            "title": "bbc",
-            "metas": {
-                "category": "abc",
-                "tags": "abc",
-                "date": "1920-03-02",
-            }, "content": "abcdefg", "excerpt": "abcdefg" + " ......", "path": "abc.md"
-        }
-        ];
-        const actual = markdownHandler.getSearchIndex(mds).search("test")[0].title;
-        const expected = "test abc";
-        expect(actual).toEqual(expected);
-
-    });
-
     describe("markdownHandler.loadMds()", () => {
 
 

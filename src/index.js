@@ -1,4 +1,3 @@
-import Fuse from "fuse.js"
 
 class MarkdownHandler {
 
@@ -20,7 +19,7 @@ class MarkdownHandler {
     thumbnailParser = (md) => {
         //match first image in the markdown file, otherwise will use default image
         let images = md.match(/\!\[.*\]\(.*?\.(jpg|png|gif|bmp|jpeg).*?\)/) || [""];
-        let image = (images[0].match(/\]\(.*(?=\))/) || [""])[0].replace(/\]|\(/g,"");
+        let image = (images[0].match(/\]\(.*(?=\))/) || [""])[0].replace(/\]|\(/g, "");
         if (!image.includes("http")) {
             image = "/" + image;
         }
@@ -32,17 +31,10 @@ class MarkdownHandler {
         return content.replace(/images(?=\/.*\))/g, "/images");
     }
 
-    getSearchIndex = (mds) => {
-        let titleDoc = [];
-        mds.forEach((md) => {
-            titleDoc.push(
-                md
-            )
-        })
-        var searchIndex = new Fuse(titleDoc, {
-            keys: ["title"]
-        })
-        return searchIndex;
+    getSearchFunction = (mds) => {
+        return (title) => {
+            return mds.filter(o => o.title.includes(title))
+        }
     }
 
 
@@ -56,10 +48,10 @@ class MarkdownHandler {
                         let metas = {};
                         let metaStrs = md.split("---")[1];
                         metaStrs.split("\n").forEach((metaStr) => {
-                            let metaArray = metaStr.split("\n")[0].split(":"); 
+                            let metaArray = metaStr.split("\n")[0].split(":");
                             if (metaArray.length >= 2) {
                                 let metaName = metaArray[0].trim().toLowerCase();
-                                let metaValue = metaArray.slice(1,99999).join(":").trim().replace(/"/g, "");
+                                let metaValue = metaArray.slice(1, 99999).join(":").trim().replace(/"/g, "");
                                 if (metaName != "coverimage") {
                                     metaValue = metaValue.toLowerCase();
                                 }
@@ -73,7 +65,7 @@ class MarkdownHandler {
                             //add default thumbnail
                             metas["coverimage"] = this.thumbnailParser(md);
                         }
-                        else if(metas["coverimage"].slice(0, 4) != "http") {
+                        else if (metas["coverimage"].slice(0, 4) != "http") {
                             metas["coverimage"] = "/" + metas["coverimage"];
                         }
                         let returnFlag = true;
@@ -95,10 +87,10 @@ class MarkdownHandler {
         });
         return Promise.all(mds).then(mds => {
             mds = mds.filter((md) => md); //remove undefined
-            const searchIndex = this.getSearchIndex(mds);
+            const search = this.getSearchFunction(mds);
             return {
                 "items": mds,
-                "searchIndex": searchIndex
+                "search": search
             };
         });
     }

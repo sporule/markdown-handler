@@ -1,6 +1,6 @@
 {
   "name": "markdown-handler",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Markdown Handler - Mini utility to help you load your markdown files on the fly",
   "author": "Sporule.com",
   "keywords": [
@@ -41,7 +41,5 @@
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14"
   },
-  "dependencies": {
-    "fuse.js": "^3.4.5"
-  }
+  "dependencies": {}
 }
