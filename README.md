@@ -7,6 +7,12 @@
 
 > Mini utility to help you load your markdown files by using the paths to .md files.
 
+## Latest Update
+
+### 0.33
+
+- added function parseContent to parse individual markdown files.
+
 ## Features
 
 - Reads markdown contents by using the paths without pre-build.

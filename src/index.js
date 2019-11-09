@@ -37,51 +37,54 @@ class MarkdownHandler {
         }
     }
 
+    parseContent = (path, md) => {
+        if (md.split("---").length >= 3) {
+            //if the md has the meta data
+            let metas = {};
+            let metaStrs = md.split("---")[1];
+            metaStrs.split("\n").forEach((metaStr) => {
+                let metaArray = metaStr.split("\n")[0].split(":");
+                if (metaArray.length >= 2) {
+                    let metaName = metaArray[0].trim().toLowerCase();
+                    let metaValue = metaArray.slice(1, 99999).join(":").trim().replace(/"/g, "");
+                    if (metaName != "coverimage") {
+                        metaValue = metaValue.toLowerCase();
+                    }
+                    if (metaName == "categories" || metaName == "tags") {
+                        metaValue = metaValue.split(",").map(o => o.trim());
+                    }
+                    metas[metaName] = metaValue;
+                }
+            });
+            if (!metas["coverimage"]) {
+                //add default thumbnail
+                metas["coverimage"] = this.thumbnailParser(md);
+            }
+            else if (metas["coverimage"].slice(0, 4) != "http") {
+                metas["coverimage"] = "/" + metas["coverimage"];
+            }
+            let returnFlag = true;
+            this.mustHaveMetas.forEach(meta => {
+                //all must have metas are required
+                if (metas[meta] == null) {
+                    returnFlag = false;
+                }
+            })
+            let content = md.split("---").slice(2, 99999).join("---");
+            content = this.markdownLocalImageFixer(content);
+            const excerpt = this.excerptParser(content, this.excerptLength);
+            if (returnFlag) {
+                return { "title": metas.title, "metas": metas, "content": content, "excerpt": excerpt + " ......", "path": path };
+            }
+        }
+    }
 
     loadMds = (paths = []) => {
         let mds = [];
         paths.forEach((path) => {
             mds.push(
                 fetch(path).then(response => response.text()).then(md => {
-                    if (md.split("---").length >= 3) {
-                        //if the md has the meta data
-                        let metas = {};
-                        let metaStrs = md.split("---")[1];
-                        metaStrs.split("\n").forEach((metaStr) => {
-                            let metaArray = metaStr.split("\n")[0].split(":");
-                            if (metaArray.length >= 2) {
-                                let metaName = metaArray[0].trim().toLowerCase();
-                                let metaValue = metaArray.slice(1, 99999).join(":").trim().replace(/"/g, "");
-                                if (metaName != "coverimage") {
-                                    metaValue = metaValue.toLowerCase();
-                                }
-                                if (metaName == "categories" || metaName == "tags") {
-                                    metaValue = metaValue.split(",").map(o => o.trim());
-                                }
-                                metas[metaName] = metaValue;
-                            }
-                        });
-                        if (!metas["coverimage"]) {
-                            //add default thumbnail
-                            metas["coverimage"] = this.thumbnailParser(md);
-                        }
-                        else if (metas["coverimage"].slice(0, 4) != "http") {
-                            metas["coverimage"] = "/" + metas["coverimage"];
-                        }
-                        let returnFlag = true;
-                        this.mustHaveMetas.forEach(meta => {
-                            //all must have metas are required
-                            if (metas[meta] == null) {
-                                returnFlag = false;
-                            }
-                        })
-                        let content = md.split("---").slice(2, 99999).join("---");
-                        content = this.markdownLocalImageFixer(content);
-                        const excerpt = this.excerptParser(content, this.excerptLength);
-                        if (returnFlag) {
-                            return { "title": metas.title, "metas": metas, "content": content, "excerpt": excerpt + " ......", "path": path };
-                        }
-                    }
+                    return this.parseContent(path, md);
                 })
             );
         });
