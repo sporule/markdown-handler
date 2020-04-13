@@ -84,10 +84,12 @@ class MarkdownHandler {
         paths.forEach((path) => {
             if (path.includes('md.js')) {
                 // this is the index of all mds
-                fetch(md_path).then(response => response.text()).then(mds_string => {
-                    posts = JSON.parse(mds_string)
-                    mds = [...posts, ...mds]
-                })
+                mds.push(
+                    fetch(path).then(response => response.text()).then(mds_string => {
+                        let posts = JSON.parse(mds_string);
+                        return posts;
+                    })
+                );
             }
             else {
                 mds.push(
@@ -98,7 +100,7 @@ class MarkdownHandler {
             }
         });
         return Promise.all(mds).then(mds => {
-            mds = mds.filter((md) => md); //remove undefined
+            mds = mds.flat().filter((md) => md); //remove undefined
             const search = this.getSearchFunction(mds);
             return {
                 "items": mds,
