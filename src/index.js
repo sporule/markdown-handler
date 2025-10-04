@@ -37,6 +37,12 @@ class MarkdownHandler {
         }
     }
 
+    parseContentNew = (path, md)=>{
+        if (md.split("---").length < 3){
+            return {}
+        }
+    }
+
     parseContent = (path, md) => {
         if (md.split("---").length >= 3) {
             //if the md has the meta data
